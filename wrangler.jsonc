@@ -1,0 +1,60 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+
+	// ---------------------------------------------------------------------
+	// 1. Worker name. This is the name you select in the Gateway Forward
+	//    policy. Change it if you want a different name in your account.
+	// ---------------------------------------------------------------------
+	"name": "gemini-signin-gate",
+
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-28",
+
+	// Gateway calls GatewayMiddleware over RPC. Keep the Worker off public URLs.
+	"workers_dev": false,
+	"preview_urls": false,
+	"observability": {
+		"enabled": true
+	},
+
+	// ---------------------------------------------------------------------
+	// 2. Settings. Edit these, then run `npm run deploy`.
+	//    You can also change them later in the Cloudflare dashboard under
+	//    Workers & Pages > gemini-signin-gate > Settings > Variables and Secrets
+	//    (then deploy with `npx wrangler deploy --keep-vars` so they stick).
+	// ---------------------------------------------------------------------
+	"vars": {
+		// Your Google Workspace primary domain, for example "example.com".
+		// Google's account chooser then pre-selects your corporate accounts.
+		// This is only a hint. Tenant control is what blocks other accounts.
+		// Leave as "" to skip it.
+		"HOSTED_DOMAIN": "",
+
+		// true  = log decisions to Workers Logs, never redirect (staged rollout)
+		// false = redirect signed-out browsers to Google sign-in
+		"OBSERVE_ONLY": false,
+
+		// --- Advanced: the defaults below work for most deployments. ---
+
+		// Host the Worker acts on. Scope the Gateway Forward policy to the same host.
+		"TARGET_HOST": "gemini.google.com",
+
+		// Google sign-in page that signed-out browsers are sent to.
+		"SIGN_IN_URL": "https://accounts.google.com/ServiceLogin",
+
+		// A browser counts as signed in when it sends at least
+		// MIN_SESSION_COOKIES of the cookies in SESSION_COOKIE_NAMES.
+		"MIN_SESSION_COOKIES": 3,
+		"SESSION_COOKIE_NAMES": [
+			"SID",
+			"HSID",
+			"SSID",
+			"APISID",
+			"SAPISID",
+			"__Secure-1PSID",
+			"__Secure-3PSID",
+			"__Secure-1PAPISID",
+			"__Secure-3PAPISID"
+		]
+	}
+}
